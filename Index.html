@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chore Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chore Management</h1>
+    
+    <div>
+        <input type="text" id="choreInput" placeholder="Enter chore">
+        <input type="number" id="pointsInput" placeholder="Points">
+        <button onclick="addChore()">Add Chore</button>
+    </div>
+    
+    <ul id="choreList"></ul>
+    
+    <div>
+        <h2>Total Points: <span id="totalPoints">0</span></h2>
+    </div>
+
+    <script>
+        let chores = JSON.parse(localStorage.getItem('chores')) || [];
+        let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+
+        function renderChores() {
+            const choreList = document.getElementById('choreList');
+            choreList.innerHTML = '';
+            chores.forEach((chore, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="${chore.completed ? 'completed' : ''}">${chore.task} (${chore.points} points)</span>
+                    <button onclick="completeChore(${index})" ${chore.completed ? 'disabled' : ''}>Done</button>
+                `;
+                choreList.appendChild(li);
+            });
+            document.getElementById('totalPoints').textContent = totalPoints;
+            localStorage.setItem('chores', JSON.stringify(chores));
+            localStorage.setItem('totalPoints', totalPoints);
+        }
+
+        function addChore() {
+            const choreInput = document.getElementById('choreInput');
+            const pointsInput = document.getElementById('pointsInput');
+            const task = choreInput.value.trim();
+            const points = parseInt(pointsInput.value);
+            
+            if (task && !isNaN(points)) {
+                chores.push({ task, points, completed: false });
+                choreInput.value = '';
+                pointsInput.value = '';
+                renderChores();
+            }
+        }
+
+        function completeChore(index) {
+            if (!chores[index].completed) {
+                chores[index].completed = true;
+                totalPoints += chores[index].points;
+                renderChores();
+            }
+        }
+
+        renderChores();
+    </script>
+</body>
+</html>
